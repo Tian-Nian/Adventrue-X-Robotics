@@ -3,7 +3,7 @@ sys.path.append("./")
 
 from controller.arm_controller import ArmController
 
-from multiprocess import *
+from multiprocessing import Process, Event
 
 from piper_sdk import *
 import numpy as np
@@ -73,9 +73,6 @@ class PiperController(ArmController):
         self.controller.MotionCtrl_2(0x01, 0x01, 100, 0x00)
         self.controller.GripperCtrl(gripper, 1000, 0x01, 0)
 
-    def bangbangbang(self):
-
-
     def __del__(self):
         try:
             if hasattr(self, 'controller'):
@@ -83,7 +80,27 @@ class PiperController(ArmController):
                 pass
         except:
             pass
-
+        
+    def _loop(self, stop_event):
+        time_interval = 1
+        while not stop_event.is_set():
+            self.move({"joint": [0., 0.4, -0.85, 0.0, 0.6, 0.0]})
+            time.sleep(time_interval)
+            
+            self.move({"joint": [0., 0.4, -0.85, 0.0, 1.5, 0.0]})
+            time.sleep(time_interval)
+    
+    def start(self):
+        self.stop_event = Event()
+        self.process = Process(target=self._loop, args=(self.stop_event,))
+        self.process.start()
+    
+    def stop(self):
+        if self.process is not None:
+            self.stop_event.set()
+            self.process.join()
+            self.process.close()
+        
 def enable_fun(piper:C_PiperInterface_V2):
     enable_flag = False
     timeout = 5
@@ -123,15 +140,13 @@ if __name__=="__main__":
     #     print(controller.get()["joint"])
     #     time.sleep(0.1)
     controller.move({"joint": [ 0.,0., 0., 0., 0.,  0.], 
-                        "gripper":0.})
-    time.sleep(1)
+                        "gripper":0.0})
+    time.sleep(5)
 
-    controller.move({"gripper":0.0})
+    # controller.move({"gripper":0.0})
+    
+    # print("start")
+    # controller.start()
 
-    while True:
-        
-        controller.move({"joint": [0., 0.4, -0.85, 0.0, 0.6, 0.0]})
-        time.sleep(1)
-        
-        controller.move({"joint": [0., 0.4, -0.85, 0.0, 1.5, 0.0]})
-        time.sleep(1)
+    # controller.stop()
+

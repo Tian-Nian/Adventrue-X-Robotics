@@ -26,9 +26,21 @@ class Robot:
         self.bunker.set_up()
         self.bunker.set_collect_info(["move_velocity"])
 
-        # self.piper = PiperController("piper_arm")
-        # self.piper .set_up("can2")
-        # self.piper .set_collect_info(["gripper","qpos","joint"])
+        self.piper = PiperController("piper_arm")
+        self.piper.set_up("can2")
+        self.piper.set_collect_info(["gripper","qpos","joint"])
+    
+    def open_gripper(self):
+        self.piper.move({"gripper": 1.0})
+        time.sleep(5)
+        self.piper.move({"gripper": 0.0})
+
+
+    def arm_start(self):
+        self.piper.start()
+    
+    def arm_stop(self):
+        self.piper.stop()
 
     def move(self, command):
         if command == 'left':
@@ -41,7 +53,7 @@ class Robot:
             # time.sleep(0.05)
         elif command == 'forward':
             print("向前移动")
-            self.bunker.move({"move_velocity": [0.05, 0., 0., 0., 0., 0.]})
+            self.bunker.move({"move_velocity": [0.0, 0., 0., 0., 0., 0.]})
         elif command == 'rotate':
             print("rotate")
             self.bunker.move({"move_velocity": [0., 0., 0., 0., 0., 0.1]})
@@ -79,9 +91,9 @@ def main():
     final_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     final_fps = cap.get(cv2.CAP_PROP_FPS)
     
-    logger.info(f"📹 相机设备 {opt.camera_id} 已启动")
-    logger.info(f"📐 目标分辨率: {target_width}x{target_height}, 目标帧率: {target_fps}fps")
-    logger.info(f"📐 实际分辨率: {final_width}x{final_height}, 实际帧率: {final_fps}fps")
+    logger.info(f"相机设备 {opt.camera_id} 已启动")
+    logger.info(f"目标分辨率: {target_width}x{target_height}, 目标帧率: {target_fps}fps")
+    logger.info(f"实际分辨率: {final_width}x{final_height}, 实际帧率: {final_fps}fps")
     
     # 检查设置是否成功
     if final_width != target_width or final_height != target_height:
@@ -99,7 +111,8 @@ def main():
     model, opt = create_robot_controller('source/yolo11n_pose_bayese_640x640_nv12.bin')
 
     robot = Robot()
-
+    robot.open_gripper()
+    robot.arm_start()
     try:
         while True:
             # 读取相机帧
@@ -139,14 +152,16 @@ def main():
                 logger.info(f"   曝光: {cap.get(cv2.CAP_PROP_EXPOSURE)}")
 
     except KeyboardInterrupt:
-        logger.info("🛑 检测被中断")
+        logger.info("检测被中断")
     except Exception as e:
-        logger.error(f"❌ 检测过程中出现错误: {e}")
+        logger.error(f"检测过程中出现错误: {e}")
     finally:
         # 清理资源
+        robot.arm_stop()
+
         cap.release()
         cv2.destroyAllWindows()
-        logger.info("📹 相机资源已释放")
+        logger.info("相机资源已释放")
     
 if __name__ == "__main__":
     main()
