@@ -30,11 +30,10 @@ class Robot:
         self.piper.set_up("can2")
         self.piper.set_collect_info(["gripper","qpos","joint"])
     
-    def open_gripper(self):
-        self.piper.move({"gripper": 1.0})
+    # def open_gripper(self):
+        # self.piper.move({"gripper": 1.0})
         time.sleep(5)
         self.piper.move({"gripper": 0.0})
-
 
     def arm_start(self):
         self.piper.start()
@@ -53,7 +52,7 @@ class Robot:
             # time.sleep(0.05)
         elif command == 'forward':
             print("向前移动")
-            self.bunker.move({"move_velocity": [0.0, 0., 0., 0., 0., 0.]})
+            self.bunker.move({"move_velocity": [0.05, 0., 0., 0., 0., 0.]})
         elif command == 'rotate':
             print("rotate")
             self.bunker.move({"move_velocity": [0., 0., 0., 0., 0., 0.1]})
@@ -123,7 +122,7 @@ def main():
             
             infer_info = robot_interface(frame, model, opt)
 
-            cv2.imshow('Real-time Crouching Detection', frame)
+            # cv2.imshow('Real-time Crouching Detection', frame)
 
             # 根据指令控制机器人（需要根据实际机器人接口修改）
             robot.move(infer_info["command"])
