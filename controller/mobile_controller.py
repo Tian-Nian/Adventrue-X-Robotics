@@ -1,6 +1,8 @@
 import sys
 sys.path.append("./")
 
+import numpy as np
+
 from controller.controller import Controller
 from typing import Dict, Any
 
@@ -9,13 +11,14 @@ class MobileController(Controller):
         super().__init__()
         self.controller_type = "robotic_mobile"
         self.controller = None
+    
     '''
     对于底盘移动,不进行is_delta的判断, 直接进行移动
     '''
-    def move(self, move_data:Dict[str, Any]):
+    def move_controller(self, move_data:Dict[str, Any], is_delta=False):
         # moving by setting velocity for every joint
         if "move_velocity" in move_data.keys():
-            self.set_move_velocity(move_data["move_velocity"])
+            self.set_move_velocity(np.array(move_data["move_velocity"]))
         # moving by set position
         if "move_to" in move_data.keys():
             self.set_move_to(move_data["move_to"])
