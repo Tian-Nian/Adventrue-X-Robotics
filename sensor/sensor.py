@@ -27,6 +27,3 @@ class Sensor:
         return f"Base Sensor, can't be used directly \n \
                 name: {self.name} \n \
                 type: {self.type}"
-    
-        
-        

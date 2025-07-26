@@ -105,18 +105,20 @@ def enable_fun(piper:C_PiperInterface_V2):
 
 if __name__=="__main__":
     controller = PiperController("test_piper")
-    controller.set_up("can0")
-    print(controller.get_state())
-    print(controller.get_gripper())
+    controller.set_up("can2")
+    controller.set_collect_info(["gripper","qpos","joint"])
 
-    controller.set_gripper(0.2)
+    print(controller.get())
 
-    controller.set_joint(np.array([0.1,0.1,-0.2,0.3,-0.2,0.5]))
+    controller.move({"gripper":0.2})
+
+    controller.move({"joint": [0.1,0.1,-0.2,0.3,-0.2,0.5], 
+                    "gripper":1.0})
     time.sleep(1)
-    print(controller.get_gripper())
-    print(controller.get_state())
+    print(controller.get())
 
-    controller.set_position(np.array([0.057, 0.0, 0.260, 0.0, 0.085, 0.0]))
+    controller.move({"qpos": [0.057, 0.0, 0.260, 0.0, 0.085, 0.0],
+                    "gripper":0.2})
+
     time.sleep(1)
-    print(controller.get_gripper())
     print(controller.get_state())
