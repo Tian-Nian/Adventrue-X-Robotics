@@ -3,6 +3,8 @@ sys.path.append("./")
 
 from controller.arm_controller import ArmController
 
+from multiprocess import *
+
 from piper_sdk import *
 import numpy as np
 import time
@@ -55,15 +57,24 @@ class PiperController(ArmController):
         self.controller.EndPoseCtrl(x, y, z, rx, ry, rz)
     
     def set_joint(self, joint):
-        j1, j2, j3 ,j4, j5, j6 = joint * 57295.7795 #1000*180/3.1415926
-        j1, j2, j3 ,j4, j5, j6 = int(j1), int(j2), int(j3), int(j4), int(j5), int(j6)
+        factor = 57295.7795 #1000*180/3.1415926
+        joint_0 = round(joint[0]*factor)
+        joint_1 = round(joint[1]*factor)
+        joint_2 = round(joint[2]*factor)
+        joint_3 = round(joint[3]*factor)
+        joint_4 = round(joint[4]*factor)
+        joint_5 = round(joint[5]*factor)
         self.controller.MotionCtrl_2(0x01, 0x01, 100, 0x00)
-        self.controller.JointCtrl(j1, j2, j3, j4, j5, j6)
+        self.controller.JointCtrl(joint_0, joint_1, joint_2, joint_3, joint_4, joint_5)
 
     # The input gripper value is in the range [0, 1], representing the degree of opening.
     def set_gripper(self, gripper):
         gripper = int(gripper * 70 * 1000)
+        self.controller.MotionCtrl_2(0x01, 0x01, 100, 0x00)
         self.controller.GripperCtrl(gripper, 1000, 0x01, 0)
+
+    def bangbangbang(self):
+
 
     def __del__(self):
         try:
@@ -105,22 +116,22 @@ def enable_fun(piper:C_PiperInterface_V2):
 
 if __name__=="__main__":
     controller = PiperController("test_piper")
-    controller.set_up("can2")
+    controller.set_up("can1")
     controller.set_collect_info(["gripper","qpos","joint"])
 
     # while True:
     #     print(controller.get()["joint"])
     #     time.sleep(0.1)
+    controller.move({"joint": [ 0.,0., 0., 0., 0.,  0.], 
+                        "gripper":0.})
+    time.sleep(1)
 
-    controller.move({"gripper":0.2})
+    controller.move({"gripper":0.0})
 
-    controller.move({"joint": [0., 0.8, -2., -0.25,0.18, -2.63], 
-                    "gripper":0.0})
-    time.sleep(5)
-    print(controller.get())
-
-    controller.move({"qpos": [0., 1.8, -2., 0., 0., -2.63],
-                    "gripper":0.2})
-
-    time.sleep(5)
-    print(controller.get())
+    while True:
+        
+        controller.move({"joint": [0., 0.4, -0.85, 0.0, 0.6, 0.0]})
+        time.sleep(1)
+        
+        controller.move({"joint": [0., 0.4, -0.85, 0.0, 1.5, 0.0]})
+        time.sleep(1)
