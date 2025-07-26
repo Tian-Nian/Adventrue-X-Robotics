@@ -31,7 +31,6 @@ class ROSSubscriber:
         with self.lock:
             return self.latest_msg
 
-        
 if __name__=="__main__":
     import time
     '''

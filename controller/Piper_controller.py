@@ -108,17 +108,19 @@ if __name__=="__main__":
     controller.set_up("can2")
     controller.set_collect_info(["gripper","qpos","joint"])
 
-    print(controller.get())
+    # while True:
+    #     print(controller.get()["joint"])
+    #     time.sleep(0.1)
 
     controller.move({"gripper":0.2})
 
-    controller.move({"joint": [0.1,0.1,-0.2,0.3,-0.2,0.5], 
-                    "gripper":1.0})
-    time.sleep(1)
+    controller.move({"joint": [0., 0.8, -2., -0.25,0.18, -2.63], 
+                    "gripper":0.0})
+    time.sleep(5)
     print(controller.get())
 
-    controller.move({"qpos": [0.057, 0.0, 0.260, 0.0, 0.085, 0.0],
+    controller.move({"qpos": [0., 1.8, -2., 0., 0., -2.63],
                     "gripper":0.2})
 
-    time.sleep(1)
-    print(controller.get_state())
+    time.sleep(5)
+    print(controller.get())
